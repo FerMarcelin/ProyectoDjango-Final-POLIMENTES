@@ -25,7 +25,8 @@ class User(AbstractBaseUser, PermissionsMixin):
     last_name = models.CharField(max_length=255, null=False, blank=False)
     username = models.UUIDField(default=uuid.uuid4, unique=True)
     email = models.EmailField(max_length=255, null=False, blank=False, unique=True)
-    password = models.CharField(max_length=64, null=False, blank=False)
+    password = models.CharField(max_length=200, null=False,
+                                blank=False)  # AQUI SE DEBIO AUMENTAR EL LIMITE PARA LA CONTRASEÑA DEBIDO A QUE AL ENCRIPTARLA SE REQUIERE DE MÁS ESPACIO
     phone = models.CharField(max_length=255, null=False, blank=False, unique=True)
     state = models.ForeignKey(ConnectionState, on_delete=models.DO_NOTHING, default="1")
 
