@@ -38,3 +38,6 @@ class User(AbstractBaseUser, PermissionsMixin):
         db_table = "Users"
         ordering = ['id']
         verbose_name = "user"
+
+    def return_connected(self):
+        return {'email':self.email, 'username': self.username}
