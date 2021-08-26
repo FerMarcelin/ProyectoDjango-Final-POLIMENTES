@@ -39,22 +39,17 @@ cambia a "online" (linea 50)
 
 
 class Login(RetrieveAPIView):
-    serializer_class = UserSerializer
+    serializer_class = CheckPasswordSerializer
 
     def get_queryset(self, **kwargs):
         return User.objects.get(**kwargs)
 
     def retrieve(self, request, *args, **kwargs):
         email = request.query_params['email']
-        pwd = request.query_params['password']
+        pswd = request.query_params['password']
         user = self.get_queryset(email=email)
-        raw_pass = user.check_password(pwd)
-        connection = ConnectionState.objects.get(id=2)
-        if raw_pass:
-            # serializers = self.serializer_class(instance=user)
-            user.state = connection
-            user.save()
-            print(user.state.state)
+        serializers = self.serializer_class.get_user(self, obj=user, pwd=pswd)
+        if serializers:
             return Response({'message': 'WELCOME!'}, status=status.HTTP_200_OK)
         return Response({'error': 'invalid password'}, status=status.HTTP_404_NOT_FOUND)
 
@@ -67,7 +62,7 @@ online u offline
 
 
 class Connected(RetrieveAPIView):
-    serializer_class = UserSerializer
+    serializer_class = CheckStateSerializer
 
     def get_queryset(self, **kwargs):
         return User.objects.get(**kwargs)
@@ -75,9 +70,8 @@ class Connected(RetrieveAPIView):
     def retrieve(self, request, *args, **kwargs):
         email = request.query_params['email']
         user = self.get_queryset(email=email)
-        print(user.state.state)  # línea de código usada para debuguear
-        if user.state.state == "inline":
-            print(user.state.state)  # línea de código usada para debuguear
+        serializers = self.serializer_class.get_user(self, obj=user)
+        if serializers:
             return Response({'status': 'Online user'}, status=status.HTTP_200_OK)
         return Response({'status': 'Offline user'}, status=status.HTTP_404_NOT_FOUND)
 
@@ -90,7 +84,7 @@ su estado a desconectado
 
 
 class Logout(RetrieveAPIView):
-    serializer_class = UserSerializer
+    serializer_class = ChangeStateSerializer
 
     def get_queryset(self, **kwargs):
         return User.objects.get(**kwargs)
@@ -98,12 +92,10 @@ class Logout(RetrieveAPIView):
     def retrieve(self, request, *args, **kwargs):
         email = request.query_params['email']
         user = self.get_queryset(email=email)
-        connection = ConnectionState.objects.get(id=1)
-        user.state = connection
-        print(user.state.state)
-        user.save()
-        return Response({'message': 'BYE, HAVE A NICE DAY!'}, status=status.HTTP_200_OK)
-
+        serializers = self.serializer_class.get_user(self, obj=user)
+        if serializers:
+            return Response({'message': 'BYE, HAVE A NICE DAY!'}, status=status.HTTP_200_OK)
+        return Response({'error': 'This user already loged out'}, status=status.HTTP_200_OK)
 
 """
 VISTA 5
