@@ -104,8 +104,23 @@ class Logout(RetrieveAPIView):
         user.save()
         return Response({'message': 'BYE, HAVE A NICE DAY!'}, status=status.HTTP_200_OK)
 
+
 """
 VISTA 5
 Vista que lista por nombre de usuario e email aquellos que se encuentran
 conectados
 """
+
+
+class ListConnectedUsers(ListAPIView):
+    serializer_class = UserSerializer
+
+    def get_queryset(self):
+        return User.objects.filter(state=2)
+
+    def list(self, request, *args, **kwargs):
+        users = self.get_queryset()
+        list = [i.return_connected() for i in users]
+        if len(list) > 0:
+            return Response(list, status=status.HTTP_200_OK)
+        return Response({'message': 'There´s nobody online'}, status=status.HTTP_404_NOT_FOUND)
